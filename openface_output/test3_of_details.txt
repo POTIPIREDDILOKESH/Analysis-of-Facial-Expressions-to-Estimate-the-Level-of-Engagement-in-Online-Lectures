@@ -1,0 +1,13 @@
+Input:C:\Users\shiva\Downloads\EngagementDetectionProject\input\test3.avi
+Input full path:C:\Users\shiva\Downloads\EngagementDetectionProject\input\test3.avi
+Camera parameters:500,500,320,240
+Output HOG:test3.hog
+Output video:test3.avi
+Output aligned directory:test3_aligned
+Output csv:test3.csv
+Gaze: 1
+AUs: 1
+Landmarks 2D: 1
+Landmarks 3D: 1
+Pose: 1
+Shape parameters: 1
