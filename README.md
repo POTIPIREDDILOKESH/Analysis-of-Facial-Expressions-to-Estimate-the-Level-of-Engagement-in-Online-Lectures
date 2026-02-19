@@ -1,329 +1,245 @@
-🎓 Analysis of Facial Expressions to Estimate the Level of Engagement in Online Lectures
+# 🎯 Real-Time Facial Expression & Engagement Detection System
 
+A Deep Learning-based system that analyzes video input to:
 
+* 🔍 Detect **facial expressions (frame-by-frame)**
+* 📊 Predict **overall engagement level (LOW / MEDIUM / HIGH)**
+* 🎥 Generate an output video with real-time overlays
 
+This project combines **OpenFace**, **Random Forest**, and **BiLSTM neural networks** to create a full video-based engagement analysis pipeline.
 
-📌 1. Project Objective
+---
 
-Online education lacks real-time engagement feedback.
-This project automatically estimates student engagement levels from facial expressions recorded in lecture videos.
+## 🚀 Features
 
-The system:
+✅ Automatic OpenFace feature extraction
+✅ Frame-level facial expression prediction
+✅ Video-level engagement classification
+✅ Real-time overlay on output video
+✅ Handles new unseen videos
+✅ Fully modular training & inference pipeline
 
-Detects faces
+---
 
-Extracts facial action units
+## 🏗️ Architecture Overview
 
-Models temporal behavior using LSTM
+### 1️⃣ Feature Extraction
 
-Predicts engagement level
+* Tool: **OpenFace**
+* Extracts:
 
-📊 2. Dataset
-DAiSEE Dataset
+  * Head pose (p_rx, p_ry, p_rz)
+  * Action Units (AU01_r, AU02_r, …)
+  * Facial landmarks
 
-Dataset link:
-https://people.iith.ac.in/vineethnb/resources/daisee/index.html
+### 2️⃣ Expression Model
 
-The DAiSEE dataset contains:
+* Algorithm: **Random Forest**
+* Input: OpenFace AU + head pose features
+* Output: Expression class (per frame)
 
-Student lecture videos
+### 3️⃣ Engagement Model
 
-Annotated engagement levels
+* Algorithm: **BiLSTM + LSTM**
+* Input: Sequential OpenFace features (+ optional expression fusion)
+* Output:
 
-Real classroom scenarios
+  * LOW
+  * MEDIUM
+  * HIGH
 
-Multiple participants
+---
 
-Multiple sessions per participant
+## 🧠 Model Architecture
 
-📁 3. Project Structure
+### Expression Model
+
+```
+OpenFace Features → StandardScaler → RandomForest → Expression Label
+```
+
+### Engagement Model
+
+```
+Sequential Features (per video)
+        ↓
+Masking Layer
+        ↓
+Bidirectional LSTM (64 units)
+        ↓
+LSTM (32 units)
+        ↓
+Dense + Dropout
+        ↓
+Softmax → Engagement Level
+```
+
+---
+
+## 📂 Project Structure
+
+```
 EngagementDetectionProject/
 │
-├── OpenFace/                     # OpenFace toolkit
-├── videos/                       # Raw videos (P_01, P_02, etc.)
-├── openface_output/              # CSV files from OpenFace
 ├── dataset/
 │   ├── master_dataset.csv
-│   ├── labels.csv
 │   └── labeled_dataset.csv
 │
 ├── models/
+│   ├── expression_model.pkl
+│   ├── expression_scaler.pkl
 │   ├── engagement_model_lstm_rnn.h5
-│   └── scaler.pkl
+│   └── engagement_scaler.pkl
 │
 ├── scripts/
-│   ├── run_openface_all.bat
-│   ├── combine_csv.py
-│   ├── generate_labels.py
-│   ├── add_labels.py
+│   ├── train_expression_model.py
 │   ├── train_model.py
-│   └── predict_from_video.py
+│   └── predict_final_video.py
+│
+├── OpenFace/
 │
 └── README.md
+```
 
-🔁 4. Complete System Workflow
-Lecture Video
-    ↓
-Face Detection (OpenFace)
-    ↓
-Facial Landmark Tracking
-    ↓
-Action Unit Extraction
-Head Pose + Eye Gaze
-    ↓
-Frame-level CSV Data
-    ↓
-Confidence Filtering
-    ↓
-Sequence Preparation
-    ↓
-Bidirectional LSTM + RNN
-    ↓
-Engagement Classification
+---
 
-🧠 5. OpenFace Feature Extraction
+## ⚙️ Installation
 
-OpenFace extracts:
+### 1️⃣ Clone the Repository
 
-68 facial landmarks
+```bash
+git clone https://github.com/yourusername/your-repo-name.git
+cd your-repo-name
+```
 
-Head pose (pose_Rx, pose_Ry, pose_Rz)
+### 2️⃣ Create Virtual Environment
 
-Eye gaze vectors
+```bash
+python -m venv engagement_env
+engagement_env\Scripts\activate
+```
 
-Action Units (AU01–AU45)
+### 3️⃣ Install Dependencies
 
-Detection confidence
+```bash
+pip install -r requirements.txt
+```
 
-Command used:
+Required libraries:
 
-FeatureExtraction.exe -f video.avi -out_dir openface_output
+* tensorflow
+* scikit-learn
+* pandas
+* numpy
+* opencv-python
+* joblib
 
+---
 
-Batch processing:
+## 🏋️ Training
 
-run_openface_all.bat
+### Train Expression Model
 
+```bash
+python train_expression_model.py
+```
 
-Each video generates a CSV file containing ~700+ features per frame.
+This will generate:
 
-🧹 6. Data Preprocessing
+```
+models/expression_model.pkl
+models/expression_scaler.pkl
+models/expression_label_encoder.pkl
+```
 
-After extraction, preprocessing is performed:
+---
 
-Step 1 — Remove Low Confidence Frames
-confidence > 0.8
-success == 1
+### Train Engagement Model
 
-
-This ensures:
-
-No false detections
-
-No noisy facial readings
-
-Step 2 — Combine All CSV Files
-python combine_csv.py
-
-
-Output:
-
-master_dataset.csv
-
-
-Contains:
-
-All videos combined
-
-Video ID column
-
-Cleaned frame-level features
-
-Step 3 — Label Generation
-
-Engagement score is calculated using:
-
-Engagement Score = (Mean(AU12_c) + (1 - Mean(AU45_c))) / 2
-
-
-Where:
-
-AU12 → Smile
-
-AU45 → Blink
-
-Labels assigned:
-
-0 → Low
-
-1 → Medium
-
-2 → High
-
-Command:
-
-python generate_labels.py
-
-Step 4 — Merge Labels
-python add_labels.py
-
-
-Creates:
-
-labeled_dataset.csv
-
-📦 7. Sequence Preparation for LSTM
-
-LSTM requires time-series input.
-
-For each video:
-
-Frames are grouped
-
-Converted into sequences
-
-Padded to uniform length (max_len = 300)
-
-Final shape:
-
-(samples, 300, 714)
-
-🤖 8. Deep Learning Architecture
-
-Model structure:
-
-Masking Layer
-
-Bidirectional LSTM (64 units)
-
-LSTM (32 units)
-
-Dense Layer (32 units)
-
-Dropout (0.3)
-
-Softmax Output Layer
-
-Why Bidirectional?
-
-Captures forward and backward temporal dependencies
-
-Better understanding of engagement evolution
-
-📈 9. Model Training
-
-Command:
-
+```bash
 python train_model.py
+```
 
+This will generate:
 
-Training details:
+```
+models/engagement_model_lstm_rnn.h5
+models/engagement_scaler.pkl
+models/engagement_label_encoder.pkl
+```
 
-Loss: sparse_categorical_crossentropy
+---
 
-Optimizer: Adam
+## 🎥 Run Prediction on New Video
 
-Epochs: 50
+```bash
+python predict_final_video.py --video "../input/test_video.mp4"
+```
 
-Batch Size: 8
+### Output:
 
-Validation Split: 0.1
+* Extracts features using OpenFace
+* Predicts frame-level expressions
+* Predicts overall engagement
+* Saves annotated video:
 
-Class Weights applied
+```
+test_video_output.mp4
+```
 
-📊 10. Model Performance
+Overlay Example:
 
-Deep Learning Model Accuracy: ~85%
-Alternative LightGBM Model: ~94%
+```
+Expression: Angry
+Engagement: LOW
+```
 
-Performance Metrics:
+---
 
-Precision
+## 📊 Engagement Levels
 
-Recall
+| Class | Meaning |
+| ----- | ------- |
+| 0     | LOW     |
+| 1     | MEDIUM  |
+| 2     | HIGH    |
 
-F1-score
+---
 
-Confusion Matrix
+## 🔬 Dataset Description
 
-🎥 11. Real-Time Video Prediction
+The dataset contains:
 
-To test with new video:
+* Video ID
+* Frame-level OpenFace features
+* Expression labels
+* Video-level engagement label
 
-python predict_from_video.py --video "input/test1.avi" --openface "OpenFace/FeatureExtraction.exe"
+Expression is predicted per frame.
+Engagement is predicted per video sequence.
 
+---
 
-Pipeline:
+## 💡 Future Improvements
 
-OpenFace extracts features
+* 🔄 Real-time webcam support
+* 📈 Attention mechanism in LSTM
+* 🌐 Web deployment (Streamlit / Flask)
+* 📊 Temporal smoothing for engagement
 
-Features are cleaned
+---
 
-Sequence is padded
+## 🎓 Applications
 
-Model predicts engagement level
+* Online learning engagement monitoring
+* Classroom attention analysis
+* Behavioral research
+* Human-computer interaction studies
+* Interview performance analytics
 
-Output:
+---
 
-Predicted Engagement: Low / Medium / High
+## 👨‍💻 Author
 
-🔬 12. Feature Engineering Details
-
-Key features used:
-
-Facial Action Units
-
-Head pose variation
-
-Eye blink frequency
-
-Smile intensity
-
-Temporal behavioral patterns
-
-Temporal modeling improves accuracy compared to static frame classification.
-
-🚀 13. Installation Guide
-Create Virtual Environment
-python -m venv engagement_env_tf
-engagement_env_tf\Scripts\activate
-
-Install Dependencies
-pip install tensorflow pandas numpy scikit-learn matplotlib
-
-🔧 14. OpenFace Installation
-
-Download OpenFace
-
-Extract into project root
-
-Test:
-
-OpenFace\FeatureExtraction.exe -h
-
-💡 15. Future Enhancements
-
-Transformer-based architecture
-
-Real-time webcam dashboard
-
-Attention heatmaps
-
-Web deployment (Flask / Streamlit)
-
-Larger labeled dataset
-
-📘 16. Research Contribution
-
-This project demonstrates:
-
-Practical facial behavior modeling
-
-Temporal engagement tracking
-
-Deep learning applied to education analytics
-
-Real-world emotion analytics pipeline
-
-👨‍💻 _______Lokesh P.
+Developed as part of a deep learning research project on video-based engagement estimation.
 
