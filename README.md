@@ -208,29 +208,46 @@ Engagement: LOW
 
 ## 🔬 Dataset Description
 
+📂 Dataset
 
-📊 Dataset
+This project uses the DAiSEE Dataset (Dataset for Affective States in E-Environments).
 
-This project is trained using the DAiSEE (Dataset for Affective States in E-Environments) dataset.
-
-🔗 Dataset Link:
+🔗 Official Dataset Page:
 https://people.iith.ac.in/vineethnb/resources/daisee/index.html
 
-Dataset Details:
+📊 About the Dataset
 
-Total size: ~15 GB
+DAiSEE is a large-scale video dataset designed for engagement and affect analysis in e-learning environments.
 
-Video clips of students in e-learning environments
+🎥 ~9,000 video clips
 
-Labels include:
+👥 112 participants
 
-Engagement
+🧑‍💻 Recorded in real e-learning conditions
+
+📏 Approximate size: ~15 GB
+
+🧠 Annotated for:
+
+Engagement (Low, Medium, High, Very High)
 
 Boredom
 
 Confusion
 
 Frustration
+
+For this project:
+
+Engagement labels were used for training the BiLSTM model.
+
+Facial Action Units (AU) were extracted using OpenFace.
+
+Expression classification was performed using a RandomForest model trained on AU features.
+
+Frame-level expressions were fused with temporal AU features for video-level engagement prediction.
+
+
 ---
 
 ## 💡 Future Improvements
