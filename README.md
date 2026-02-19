@@ -208,16 +208,29 @@ Engagement: LOW
 
 ## 🔬 Dataset Description
 
-The dataset contains:
 
-* Video ID
-* Frame-level OpenFace features
-* Expression labels
-* Video-level engagement label
+📊 Dataset
 
-Expression is predicted per frame.
-Engagement is predicted per video sequence.
+This project is trained using the DAiSEE (Dataset for Affective States in E-Environments) dataset.
 
+🔗 Dataset Link:
+https://people.iith.ac.in/vineethnb/resources/daisee/index.html
+
+Dataset Details:
+
+Total size: ~15 GB
+
+Video clips of students in e-learning environments
+
+Labels include:
+
+Engagement
+
+Boredom
+
+Confusion
+
+Frustration
 ---
 
 ## 💡 Future Improvements
